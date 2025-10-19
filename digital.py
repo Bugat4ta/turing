@@ -90,6 +90,8 @@ def copy_input_transition(state, symbols):
         if s0 != Blank:
             writes = [None] * k
             writes[1] = s0
+            writes[2] = s0
+            writes[3] = s0
             moves = ["R", "R"] + ["S"] * (k - 2)
             return ("q0", tuple(writes), tuple(moves))
         else:
