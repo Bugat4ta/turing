@@ -88,7 +88,7 @@ def copy_input_transition(state, symbols):
     if state == "q0":
         s0 = symbols[0]
         if s0 != Blank:
-            writes = [None] * k
+            writes = [None] * 6
             writes[1] = s0
             writes[2] = s0
             writes[3] = s0
