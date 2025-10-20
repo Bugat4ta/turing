@@ -28,18 +28,13 @@ class SixHeadTuringMachine:
         self.heads[tape_index] = start_pos
 
     def read_symbols(self):
-        symbols = []
-        for i in range(self.k):
-            pos = self.heads[i]
-            symbols.append(self.tapes[i].get(pos, self.blank))
-        return tuple(symbols)
+        return tuple(self.tapes[i].get(self.heads[i], self.blank) for i in range(self.k))
 
     def write_symbols(self, writes):
         for i in range(self.k):
             sym = writes[i]
             if sym is not None:
-                pos = self.heads[i]
-                self.tapes[i][pos] = sym
+                self.tapes[i][self.heads[i]] = sym
 
     def move_heads(self, moves):
         for i in range(self.k):
@@ -72,31 +67,25 @@ class SixHeadTuringMachine:
 
     def dump_tape(self, tape_index, window=20):
         h = self.heads[tape_index]
-        left = h - window
-        right = h + window
+        left, right = h - window, h + window
         out = ""
         for pos in range(left, right + 1):
             sym = self.tapes[tape_index].get(pos, self.blank)
-            if pos == h:
-                out += "[" + sym + "]"
-            else:
-                out += " " + sym + " "
+            out += f"[{sym}]" if pos == h else f" {sym} "
         return out
 
+# Transition: write the same symbol to all heads and move all right
 def copy_input_transition(state, symbols):
     k = 6
     if state == "q0":
         s0 = symbols[0]
         if s0 != Blank:
-            writes = [None] * 6
-            writes[1] = s0
-            writes[2] = s0
-            writes[3] = s0
-            moves = ["R", "R"] + ["S"] * (k - 2)
+            writes = [s0] * k
+            moves = ["R"] * k
             return ("q0", tuple(writes), tuple(moves))
         else:
-            moves = ["S"] * k
             writes = [None] * k
+            moves = ["S"] * k
             return ("q_accept", tuple(writes), tuple(moves))
     return None
 
@@ -107,7 +96,9 @@ if __name__ == "__main__":
         start_state="q0",
         accept_states={"q_accept"}
     )
-    tm.load_input("hi my name is alan turing")
+
+    tm.load_input("abt7t5t8t4tba01")
+
     try:
         while True:
             print("\033[H\033[J", end="")
@@ -120,3 +111,4 @@ if __name__ == "__main__":
             time.sleep(0.25)
     except KeyboardInterrupt:
         print("\nStopped manually at step", tm.steps)
+
